@@ -2,6 +2,8 @@ package com.sambit.controller;
 
 import com.sambit.model.*;
 import com.sambit.repository.*;
+import com.sambit.utils.GenerateTableList;
+import com.sambit.utils.generateTableListPDF;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -11,11 +13,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @Project : EmpSalary
+ * @Project : Assessment22
  * @Auther : Sambit Kumar Pradhan
  * @Created On : 22/04/2023 - 10:18 AM
  */
@@ -34,44 +38,12 @@ public class MainController {
     @Autowired
     private TechnologyMasterRepository technologyMasterRepository;
 
-    public static String calculateGrade(int mark) {
-        if (mark < 60) {
-            return "F";
-        } else if (mark >= 60 && mark <= 79) {
-            return "A";
-        } else if (mark >= 80 && mark <= 89) {
-            return "E";
-        } else if (mark >= 90 && mark <= 100) {
-            return "O";
-        } else {
-            return "Invalid Mark";
-        }
-    }
-
-    public List<TableListDTO>generateTableList(List<Object[]> tableList){
-        System.out.println("Inside generateTableList");
-        List<TableListDTO> tableListDTOList = new ArrayList<>();
-        tableList.forEach(table -> {
-            TableListDTO tableListDTO = new TableListDTO();
-            tableListDTO.setBatchName(table[0].toString());
-            tableListDTO.setBatchStartDate(table[1].toString());
-            tableListDTO.setTechnologyName(table[2].toString());
-            tableListDTO.setEmployeeName(table[3].toString());
-            tableListDTO.setEmployeePhone(table[4].toString());
-            tableListDTO.setMark(Integer.parseInt(table[5].toString()));
-            tableListDTO.setGrade(calculateGrade(Integer.parseInt(table[5].toString())));
-            tableListDTO.setStatus(Integer.parseInt(table[5].toString()) >= 70 ? "Eligible" : "Not Eligible");
-            tableListDTOList.add(tableListDTO);
-        });
-        return tableListDTOList;
-    }
-
     @GetMapping(value = "/getBatch")
     public String getBatch(Model model) {
         System.out.println("Inside getBatch");
         List<BatchMaster> batchMasterList = batchMasterRepository.findAll();
         List<TechnologyMaster> technologyMasterList = technologyMasterRepository.findAll();
-        List<TableListDTO> tableListDTOList = generateTableList(batchMasterRepository.getTableList());
+        List<TableListDTO> tableListDTOList = GenerateTableList.generateTableList(batchMasterRepository.getTableList());
         model.addAttribute("batchMasterList", batchMasterList);
         model.addAttribute("technologyMasterList", technologyMasterList);
         model.addAttribute("tableListDTOList", tableListDTOList);
@@ -80,7 +52,7 @@ public class MainController {
 
     @ResponseBody
     @GetMapping("/getEmployeeDetails")
-    public ResponseEntity getEmployeeDetails(@RequestParam(value = "batchId") Integer batchId,
+    public ResponseEntity<?> getEmployeeDetails(@RequestParam(value = "batchId") Integer batchId,
                                              @RequestParam(value = "technologyId") Integer technologyId) {
         System.out.println("Inside getEmployeeDetails");
         return ResponseEntity.ok(employeeMasterRepository.getEmployeeMasterByBatchIdAndTechnologyId(batchId, technologyId));
@@ -99,7 +71,34 @@ public class MainController {
         assementMark.setMark(mark);
         assementMarkRepository.save(assementMark);
 
-
         return "redirect:/getBatch";
+    }
+
+    @PostMapping("/searchFilter")
+    public String searchFilter(@RequestParam(value = "searchBatchId") Integer batchId,
+                               Model model) {
+        System.out.println("Inside searchFilter");
+        System.out.println("Batch Id: " + batchId);
+        List<BatchMaster> batchMasterList = batchMasterRepository.findAll();
+        List<TechnologyMaster> technologyMasterList = technologyMasterRepository.findAll();
+        model.addAttribute("batchMasterList", batchMasterList);
+        model.addAttribute("technologyMasterList", technologyMasterList);
+        List<TableListDTO> tableListDTOList = GenerateTableList.generateTableList(batchMasterRepository.getTableListByBatchId(batchId));
+        model.addAttribute("tableListDTOList", tableListDTOList);
+        return "assessment";
+    }
+
+    @GetMapping("/generatePDF")
+    public void generatePDF(@RequestParam(value = "searchBatchId1") Integer batchId,
+                            HttpServletResponse httpServletResponse) {
+        System.out.println("Inside generatePDF");
+        System.out.println("Batch Id: " + batchId);
+        if (batchId == 0){
+            List<TableListDTO> tableListDTOList = GenerateTableList.generateTableList(batchMasterRepository.getTableList());
+            generateTableListPDF.generateTableListPDF(tableListDTOList, httpServletResponse);
+        } else {
+            List<TableListDTO> tableListDTOList = GenerateTableList.generateTableList(batchMasterRepository.getTableListByBatchId(batchId));
+            generateTableListPDF.generateTableListPDF(tableListDTOList, httpServletResponse);
+        }
     }
 }

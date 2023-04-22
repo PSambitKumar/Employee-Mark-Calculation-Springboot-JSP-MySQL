@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 /**
- * @Project : EmpSalary
+ * @Project : Assessment22
  * @Auther : Sambit Kumar Pradhan
  * @Created On : 22/04/2023 - 10:31 AM
  */

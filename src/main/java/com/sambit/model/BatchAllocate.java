@@ -3,7 +3,7 @@ package com.sambit.model;
 import javax.persistence.*;
 
 /**
- * @Project : EmpSalary
+ * @Project : Assessment22
  * @Auther : Sambit Kumar Pradhan
  * @Created On : 22/04/2023 - 10:28 AM
  */

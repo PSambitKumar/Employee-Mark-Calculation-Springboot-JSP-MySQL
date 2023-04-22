@@ -3,7 +3,7 @@ package com.sambit.model;
 import java.util.Date;
 
 /**
- * @Project : EmpSalary
+ * @Project : Assessment22
  * @Auther : Sambit Kumar Pradhan
  * @Created On : 22/04/2023 - 11:06 AM
  */
