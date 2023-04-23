@@ -4,7 +4,6 @@ import com.sambit.model.*;
 import com.sambit.repository.*;
 import com.sambit.utils.GenerateTableList;
 import com.sambit.utils.generateTableListPDF;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,17 +25,17 @@ import java.util.List;
 @Controller
 public class MainController {
 
-    @Autowired
-    private AssementMarkRepository assementMarkRepository;
+    private final AssementMarkRepository assementMarkRepository;
+    private final BatchMasterRepository batchMasterRepository;
+    private final EmployeeMasterRepository employeeMasterRepository;
+    private final TechnologyMasterRepository technologyMasterRepository;
 
-    @Autowired
-    private BatchMasterRepository batchMasterRepository;
-
-    @Autowired
-    private EmployeeMasterRepository employeeMasterRepository;
-
-    @Autowired
-    private TechnologyMasterRepository technologyMasterRepository;
+    public MainController(AssementMarkRepository assementMarkRepository, BatchMasterRepository batchMasterRepository, EmployeeMasterRepository employeeMasterRepository, TechnologyMasterRepository technologyMasterRepository) {
+        this.assementMarkRepository = assementMarkRepository;
+        this.batchMasterRepository = batchMasterRepository;
+        this.employeeMasterRepository = employeeMasterRepository;
+        this.technologyMasterRepository = technologyMasterRepository;
+    }
 
     @GetMapping(value = "/getBatch")
     public String getBatch(Model model) {
